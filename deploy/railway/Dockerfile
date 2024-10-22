@@ -1,6 +1,7 @@
 # Railway Dockerfile
 
-FROM yiyungent/qqbothub:v0.5.2
+# FROM yiyungent/knifehub:v1.4.3-amd-full
+FROM yiyungent/knifehub:v1.6.3-amd-chrome
 
 # 处于 /app 目录下
 ADD railway-entrypoint.sh ./railway-entrypoint.sh

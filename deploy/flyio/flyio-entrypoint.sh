@@ -18,4 +18,8 @@ cat '/app/heroku-PluginCore.Config.json' | sed "s/PLUGINCORE_ADMIN_USERNAME/${PL
 cat '/app/App_Data/PluginCore.Config.json' | sed "s/PLUGINCORE_ADMIN_PASSWORD/${PLUGINCORE_ADMIN_PASSWORD}/g" | tee '/app/App_Data/PluginCore.Config.json'
 # endregion PluginCore
 
-dotnet WebApi.dll
+# cat '/etc/nginx/sites-enabled/default' | sed "s/80/${PORT}/g" | tee '/etc/nginx/sites-enabled/default'
+# /usr/sbin/nginx -s reload
+
+dotnet KnifeHub.Web.dll
+# /usr/bin/supervisord -c /etc/supervisord.conf

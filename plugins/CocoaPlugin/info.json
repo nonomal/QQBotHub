@@ -1,0 +1,8 @@
+{
+	"PluginId": "CocoaPlugin",
+	"DisplayName": "QQ插件",
+	"Description": "QQ基础插件 for mirai-api-http",
+	"Author": "yiyun",
+	"Version": "0.0.2",
+	"SupportedVersions": [ "0.0.1" ]
+}

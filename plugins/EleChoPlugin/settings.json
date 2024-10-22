@@ -1,0 +1,19 @@
+{
+  "AdminQQ": 1231312,
+  "UseDemoModel": true,
+  "EleChoConfigs": [
+    {
+      "ConfigId": "test-http",
+      "Enable": true,
+      "Mode": "http",
+      "CqHttpSession": {
+        "BaseUri": "http://remote.go-cqhttp.com",
+        "AccessToken": "test AccessToken"
+      },
+      "CqRHttpSession": {
+        "BaseUri": "http://localhost:8080",
+        "Secret": "test Secret"
+      }
+    }
+  ]
+}

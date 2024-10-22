@@ -1,0 +1,8 @@
+{
+	"PluginId": "DuplicatiPlugin",
+	"DisplayName": "Duplicati插件",
+	"Description": "Duplicati插件",
+	"Author": "yiyun",
+	"Version": "0.2.4",
+	"SupportedVersions": [ "0.0.1" ]
+}

@@ -1,0 +1,13 @@
+﻿{
+  "ApiId": 0,
+  "ApiHash": "",
+  "AutoLogin": {
+    "Enabled": false,
+    "Phone": ""
+  },
+  "Proxy": {
+    "ProxyEnabled": false,
+    "ProxyHost": "127.0.0.1",
+    "ProxyPort": 10808
+  }
+}

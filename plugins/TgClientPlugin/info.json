@@ -1,0 +1,8 @@
+{
+	"PluginId": "TgClientPlugin",
+	"DisplayName": "TgClient插件",
+	"Description": "TgClient插件",
+	"Author": "yiyun",
+	"Version": "0.0.2",
+	"SupportedVersions": [ "0.0.1" ]
+}
