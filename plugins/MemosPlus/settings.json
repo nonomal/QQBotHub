@@ -1,0 +1,23 @@
+{
+  "SecondsPeriod": 3600,
+  "Memos": {
+    "BaseUrl": "",
+    "OpenId": "xxxxxx-xxxx-xxxx-xxxxx-xxxxxxxx",
+    "MemosSession": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  "GitHub": {
+    "AccessToken": "your GitHub Personal Access Token",
+    "RepoOwner": "your GitHub UserName",
+    "RepoName": "your Repository Name",
+    "RepoBranch": "your branch: master/main",
+    "RepoTargetDirPath": "示例: source/_posts/分类-memos/",
+    "MemoFileName": "memo-{{date}}.md"
+  },
+  "Backup": {
+    "EnableBackupToGitHub": false,
+    "AllowedExecute": {
+      "TimeHourFrom": 1,
+      "TimeHourTo": 5
+    }
+  }
+}

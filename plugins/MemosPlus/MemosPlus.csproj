@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageId>PluginCore.MemosPlus</PackageId>
+		<Version>0.1.17</Version>
+		<FileVersion>0.1.17.0</FileVersion>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<Company>yiyun</Company>
+		<Authors>yiyun</Authors>
+		<Description>PluginCore 插件: MemosPlus</Description>
+		<Copyright>Copyright (c) 2023-present yiyun</Copyright>
+		<RepositoryUrl>https://github.com/yiyungent/KnifeHub</RepositoryUrl>
+		<PackageLicenseUrl>https://github.com/yiyungent/KnifeHub/blob/main/LICENSE</PackageLicenseUrl>
+		<PackageTags>PluginCore PluginCore.IPlugins</PackageTags>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    </PropertyGroup>
+
+	<ItemGroup>
+		<!--<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0">
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</PackageReference>-->
+    <FrameworkReference Include="Microsoft.AspNetCore.App">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </FrameworkReference>
+		<PackageReference Include="PluginCore.IPlugins.AspNetCore" Version="0.1.0">
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</PackageReference>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="Octokit" Version="0.51.0" />
+		<PackageReference Include="Octokit.Reactive" Version="0.51.0" />
+    <PackageReference Include="Scriban" Version="5.7.0" />
+	</ItemGroup>
+
+	<!-- 发布插件相关文件 -->
+	<ItemGroup>
+		<Content Include="info.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="README.md">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="settings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<!-- 发布 wwwroot -->
+	<ItemGroup>
+		<Content Include="wwwroot\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+  <!-- 发布 templates -->
+	<ItemGroup>
+		<Content Include="templates\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+  <!-- 移除重复引用 -->
+  <Target Name="DeleteFilesAfterBuild" AfterTargets="Build" Condition=" '$(ProjectDir)'!='' ">
+    <Delete Files="$(OutputPath)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+    <Delete Files="$(OutputPath)Microsoft.Extensions.Logging.Abstractions.dll" />
+    <Delete Files="$(OutputPath)Microsoft.Extensions.Options.dll" />
+    <Delete Files="$(OutputPath)Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions.dll" />
+    <Delete Files="$(OutputPath)Microsoft.Extensions.Diagnostics.HealthChecks.dll" />
+    <!-- System.IdentityModel.Tokens.Jwt 依赖于 Microsoft.IdentityModel.Tokens -->
+    <Delete Files="$(OutputPath)System.IdentityModel.Tokens.Jwt.dll" />
+    <Delete Files="$(OutputPath)Microsoft.IdentityModel.Tokens.dll" />
+  </Target>
+
+</Project>

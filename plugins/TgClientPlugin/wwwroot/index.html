@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>TgClientPlugin-v0.0.1</title>
+    <link
+      href="/plugins/TgClientPlugin/libs/mdui/css/mdui.min.css"
+      rel="stylesheet"
+    />
+    <script src="/plugins/TgClientPlugin/libs/mdui/js/mdui.min.js"></script>
+    <!-- Matomo Tag Manager -->
+    <script>
+      var _mtm = window._mtm = window._mtm || [];
+      _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.async=true; g.src='https://matomo.moeci.com/js/container_RuoDW2ca.js'; s.parentNode.insertBefore(g,s);
+    </script>
+    <!-- End Matomo Tag Manager -->
+  </head>
+  <body>
+    <div id="app" class="mdui-container-fluid">
+      <!-- PluginCore.IPlugins.IWidgetPlugin.Widget(TgClientPlugin.Login,before) -->
+      <h1 class="mdui-text-center">TgClientPlugin</h1>
+      <div id="login-box">
+        <div class="mdui-center">
+        </div>
+        <div id="login-tab" class="mdui-tab mdui-tab-full-width" mdui-tab>
+          <a href="#tab-info" class="mdui-ripple" data-type="password"
+            >登录信息</a
+          >
+        </div>
+        <div>
+          <div id="tab-info">
+            <div class="mdui-textfield mdui-textfield-floating-label">
+              <label class="mdui-textfield-label">信息</label>
+              <input
+                id="login-input-info"
+                class="mdui-textfield-input"
+                type="text"
+              />
+            </div>
+          </div>
+          <button
+            id="btn-login"
+            onclick="login()"
+            class="mdui-btn mdui-btn-block mdui-color-green mdui-ripple"
+          >
+            登录
+          </button>
+          <button
+            id="btn-logout"
+            onclick="logout()"
+            class="mdui-btn mdui-btn-block mdui-color-red mdui-ripple"
+          >
+            退出
+          </button>
+        </div>
+        <div
+          id="footer"
+          class="mdui-text-center"
+          style="padding-top: 200px; padding-bottom: 100px"
+        >
+          <div>许可</div>
+          <div class="mdui-text-color-black-text">MIT License</div>
+          <div>
+            <a href="https://github.com/yiyungent/KnifeHub">TgClientPlugin</a>
+          </div>
+          <div>
+            基于
+            <a href="https://github.com/wiz0u/WTelegramClient">WTelegramClient</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+
+      function login() {
+        axios({
+          method: "post",
+          url: "/api/Plugins/TgClientPlugin/Login",
+          data: {
+            loginInfo: document.querySelector("#login-input-info").value
+          },
+          responseType: "json",
+        }).then(function (res) {
+          res = res.data;
+          console.info(res);
+          if (res.code > 0) {
+            alert(res.message);
+          } else {
+            alert(res.message);
+          }
+        });
+      }
+
+      function logout() {
+        axios({
+          method: "post",
+          url: "/api/Plugins/TgClientPlugin/Logout",
+          responseType: "json",
+        }).then(function (res) {
+          res = res.data;
+          console.info(res);
+          if (res.code > 0) {
+            alert(res.message);
+          } else {
+            alert(res.message);
+          }
+        });
+      }
+
+      window.onload = function () {
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@yiyungent/plugincore/dist/PluginCore.min.js"></script>
+    <script>
+      var p = new PluginCore({
+        baseUrl: "",
+      });
+
+      p.start();
+    </script>
+  </body>
+</html>

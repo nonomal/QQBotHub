@@ -1,0 +1,22 @@
+{
+  "Bots": [
+    {
+      "BotAppId": "",
+      "BotToken": "",
+      "BotSecret": "",
+      "UseSandBoxMode": true,
+      "UsePrivateBot": true,
+      "EnableUserMessageTriggerCommand": true,
+      "UseDemoModel": true
+    },
+    {
+      "BotAppId": "",
+      "BotToken": "",
+      "BotSecret": "",
+      "UseSandBoxMode": true,
+      "UsePrivateBot": true,
+      "EnableUserMessageTriggerCommand": true,
+      "UseDemoModel": true
+    }
+  ]
+}

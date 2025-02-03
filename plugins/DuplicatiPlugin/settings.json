@@ -1,0 +1,8 @@
+{
+  "UseDebugModel": false,
+  "Telegram": {
+    "Enable": false,
+    "BotToken": "",
+    "ChatId": ""
+  }
+}

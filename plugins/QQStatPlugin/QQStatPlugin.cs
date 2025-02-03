@@ -6,14 +6,14 @@ using PluginCore.IPlugins;
 using Konata.Core;
 using Konata.Core.Events.Model;
 using Konata.Core.Interfaces.Api;
-using QQBotHub.Sdk.IPlugins;
 using QQStatPlugin.Utils;
 using Konata.Core.Message.Model;
 using Konata.Core.Common;
 using System.Text;
-using QQBotHub.Sdk;
 using Konata.Core.Message;
 using System.Collections.Generic;
+using KonataPlugin;
+using System.Linq;
 
 namespace QQStatPlugin
 {
@@ -47,7 +47,7 @@ namespace QQStatPlugin
                 // 保存数据库
                 int successRow = DbContext.InsertIntoMessage(new Models.Message()
                 {
-                    Content = message,
+                    Content = ConvertToString(obj.e.Chain),
                     CreateTime = DateTime.Now.ToTimeStamp13(),
                     GroupName = groupName,
                     GroupUin = groupUin.ToString(),
@@ -93,6 +93,7 @@ namespace QQStatPlugin
                             stringBuilder.AppendLine("#日历 指定某人QQ");
                             stringBuilder.AppendLine("#折线");
                             stringBuilder.AppendLine("#折线 指定某人QQ");
+                            stringBuilder.AppendLine("#排行榜");
                             stringBuilder.AppendLine("补充:");
                             stringBuilder.AppendLine("日历为 计算消息字数");
                             stringBuilder.AppendLine("折线为 计算消息字数");
@@ -107,7 +108,57 @@ namespace QQStatPlugin
                         else if (message.Contains("#折线"))
                         {
                             #region 折线
-                            SendStackedArea(obj: obj, message: message, groupUin: groupUin, settingsModel: settingsModel, memberUin: memberUin);
+                            try
+                            {
+                                SendStackedArea(obj: obj, message: message, groupUin: groupUin, settingsModel: settingsModel, memberUin: memberUin);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("SendStackedArea() 失败:");
+                                Console.WriteLine(ex.ToString());
+                            }
+                            #endregion
+                        }
+                        else if (message.Contains("#排行榜"))
+                        {
+                            #region 排行榜
+                            try
+                            {
+                                var memeberList = obj.s.GetGroupMemberList(groupUin: groupUin, forceUpdate: true).Result.ToList()
+                                    .Select(m => (m.NickName, m.Uin)).ToList();
+                                var memeberUinList = memeberList.Select(m => m.Uin).ToList();
+
+                                var topByGroupList = DbContext.TopByGroup(groupUin: groupUin.ToString()).Result.ToList();
+                                List<BaseChain> baseChains = new List<BaseChain>();
+                                baseChains.Add(TextChain.Create("本群发言排行榜 (总字数)"));
+                                baseChains.Add(TextChain.Create("\r\n"));
+                                for (int i = 0; i < topByGroupList.Count; i++)
+                                {
+                                    baseChains.Add(TextChain.Create($"{(i + 1)}: "));
+                                    baseChains.Add(TextChain.Create($"总字数: {topByGroupList[i].TotalContentLen}  "));
+                                    if (memeberUinList.Contains(uint.Parse(topByGroupList[i].QQUin)))
+                                    {
+                                        //var memberTemp = memeberList.FirstOrDefault(m => m.Uin.ToString() == topByGroupList[i].QQUin);
+                                        // 没有 memberTemp.Name
+
+                                        var memberTemp = obj.s.GetGroupMemberInfo(groupUin: groupUin, memberUin: uint.Parse(topByGroupList[i].QQUin), forceUpdate: true).Result;
+
+                                        //baseChains.Add(AtChain.Create(uint.Parse(topByGroupList[i].QQUin)));
+                                        baseChains.Add(TextChain.Create($"{memberTemp.NickName}({topByGroupList[i].QQUin})"));
+                                    }
+                                    else
+                                    {
+                                        baseChains.Add(TextChain.Create($"已退群({topByGroupList[i].QQUin})"));
+                                    }
+                                    baseChains.Add(TextChain.Create("\r\n"));
+                                }
+                                obj.s.SendGroupMessage(groupUin, baseChains.ToArray());
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("发送 排行榜 失败:");
+                                Console.WriteLine(ex.ToString());
+                            }
                             #endregion
                         }
                     }
@@ -152,12 +203,12 @@ namespace QQStatPlugin
                 {
                     try
                     {
-                        var messages = DbContext.QueryAllMessage();
-                        obj.s.SendFriendMessage(friendUin, $"共收集 Message {(messages?.Count.ToString() ?? "0")} 条");
+                        long count = DbContext.Count().Result;
+                        obj.s.SendFriendMessage(friendUin, $"共收集 Message {count} 条");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("查询 Message 出错");
+                        Console.WriteLine("查询 Message 条数 出错");
                     }
                 }
             }
@@ -192,26 +243,28 @@ namespace QQStatPlugin
         {
             try
             {
-                SettingsModel settingsModel = PluginCore.PluginSettingsModelFactory.Create<SettingsModel>(nameof(QQStatPlugin));
-                if (QQBotStore.Bot != null && QQBotStore.Bot.IsOnline())
-                {
-                    var groupList = await QQBotStore.Bot.GetGroupList(forceUpdate: true);
-                    foreach (var group in groupList)
-                    {
-                        if (settingsModel.ChartGroups.Contains(group.Uin.ToString()))
-                        {
-                            SendStackedArea((QQBotStore.Bot, null), message: "#折线", groupUin: group.Uin, settingsModel: settingsModel);
+                #region TODO
+                //SettingsModel settingsModel = PluginCore.PluginSettingsModelFactory.Create<SettingsModel>(nameof(QQStatPlugin));
+                //if (KonataBotStore.Bot != null && KonataBotStore.Bot.IsOnline())
+                //{
+                //    var groupList = await KonataBotStore.Bot.GetGroupList(forceUpdate: true);
+                //    foreach (var group in groupList)
+                //    {
+                //        if (settingsModel.ChartGroups.Contains(group.Uin.ToString()))
+                //        {
+                //            SendStackedArea((KonataBotStore.Bot, null), message: "#折线", groupUin: group.Uin, settingsModel: settingsModel);
 
-                            List<BaseChain> baseChains = new List<BaseChain>()
-                            {
-                                TextChain.Create("发送 #帮助 获取更多信息")
-                            };
+                //            List<BaseChain> baseChains = new List<BaseChain>()
+                //            {
+                //                TextChain.Create("发送 #帮助 获取更多信息")
+                //            };
 
-                            await QQBotStore.Bot.SendGroupMessage(groupUin: group.Uin, baseChains.ToArray());
-                        }
-                    }
+                //            await KonataBotStore.Bot.SendGroupMessage(groupUin: group.Uin, baseChains.ToArray());
+                //        }
+                //    }
 
-                }
+                //} 
+                #endregion
             }
             catch (Exception ex)
             {
@@ -226,18 +279,35 @@ namespace QQStatPlugin
         public void SendCalendar((Bot s, GroupMessageEvent e) obj, string message, uint groupUin, uint memberUin, SettingsModel settingsModel)
         {
             string token = Guid.NewGuid().ToString();
-            Controllers.CalendarController.CreateTime = DateTime.Now;
+            Controllers.CalendarController.TempData.CreateTime = DateTime.Now;
+            Controllers.CalendarController.TempData.GroupUin = groupUin.ToString();
+            Controllers.CalendarController.TempData.MemeberUin = null;
 
             // 下方获取当前群聊
-            string urlParam = $"{settingsModel.BaseUrl}/Plugins/QQStatPlugin/Calendar?groupUin={groupUin.ToString()}";
+            //string urlParam = $"{settingsModel.BaseUrl}/Plugins/QQStatPlugin/Calendar?groupUin={groupUin.ToString()}";
+            string urlParam = $"{settingsModel.BaseUrl}/Plugins/QQStatPlugin/Calendar";
             string targetMemberUinStr = message.Replace("#日历", "")?.Trim();
             if (uint.TryParse(targetMemberUinStr, out uint targetMemberUin))
             {
                 // 仅此人 日历
-                urlParam += $"&memeberUin={targetMemberUin}";
+                //urlParam += $"&memeberUin={targetMemberUin}";
+                Controllers.StackedAreaController.TempData.MemeberUin = targetMemberUin.ToString();
             }
+
+            Console.WriteLine($"准备发送统计: {urlParam}");
+            try
+            {
+                obj.s.SendGroupMessage(groupUin, $"{urlParam} \r\n 1小时后/下次失效,需重新获取,数据较多,请耐心等待");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("发送统计失败:");
+                Console.WriteLine(ex.ToString());
+            }
+
             // 注意: url 编码, 这样才能正确传参
             urlParam = System.Web.HttpUtility.UrlEncode(urlParam, System.Text.Encoding.UTF8);
+
             // 加个time 防止缓存
             // ScreenshotUrl: xxx.com?url=
             string imageUrl = $"{settingsModel.ScreenshotUrl}{urlParam}&time={DateTime.Now.ToTimeStamp13()}";
@@ -262,19 +332,37 @@ namespace QQStatPlugin
 
         public void SendStackedArea((Bot s, GroupMessageEvent e) obj, string message, uint groupUin, SettingsModel settingsModel, uint memberUin = 0)
         {
+            Console.WriteLine("进入 SendStackedArea");
             string token = Guid.NewGuid().ToString();
-            Controllers.StackedAreaController.CreateTime = DateTime.Now;
+            Controllers.StackedAreaController.TempData.CreateTime = DateTime.Now;
+            Controllers.StackedAreaController.TempData.GroupUin = groupUin.ToString();
+            Controllers.StackedAreaController.TempData.MemeberUin = null;
 
             // 下方获取当前群聊
-            string urlParam = $"{settingsModel.BaseUrl}/Plugins/QQStatPlugin/StackedArea?groupUin={groupUin.ToString()}";
+            //string urlParam = $"{settingsModel.BaseUrl}/Plugins/QQStatPlugin/StackedArea?groupUin={groupUin.ToString()}";
+            string urlParam = $"{settingsModel.BaseUrl}/Plugins/QQStatPlugin/StackedArea";
             string targetMemberUinStr = message.Replace("#折线", "")?.Trim();
             if (uint.TryParse(targetMemberUinStr, out uint targetMemberUin))
             {
                 // 仅此人 日历
-                urlParam += $"&memeberUin={targetMemberUin}";
+                //urlParam += $"&memeberUin={targetMemberUin}";
+                Controllers.StackedAreaController.TempData.MemeberUin = targetMemberUin.ToString();
             }
+
+            Console.WriteLine($"准备发送统计: {urlParam}");
+            try
+            {
+                obj.s.SendGroupMessage(groupUin, $"{urlParam} \r\n 1小时后/下次失效,需重新获取,数据较多,请耐心等待");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("发送统计失败:");
+                Console.WriteLine(ex.ToString());
+            }
+
             // 注意: url 编码, 这样才能正确传参
             urlParam = System.Web.HttpUtility.UrlEncode(urlParam, System.Text.Encoding.UTF8);
+
             // 加个time 防止缓存
             // ScreenshotUrl: xxx.com?url=
             string imageUrl = $"{settingsModel.ScreenshotUrl}{urlParam}&time={DateTime.Now.ToTimeStamp13()}";
@@ -298,6 +386,47 @@ namespace QQStatPlugin
                 Console.WriteLine("发送 折线 图片失败");
                 Console.WriteLine(ex.ToString());
             }
+        }
+
+        private string ConvertToString(MessageChain chains)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in chains)
+            {
+                switch (item.Type)
+                {
+                    case BaseChain.ChainType.At:
+                        sb.AppendLine(item.ToString());
+                        break;
+                    case BaseChain.ChainType.Reply:
+                        break;
+                    case BaseChain.ChainType.Text:
+                        sb.AppendLine(item.ToString());
+                        break;
+                    case BaseChain.ChainType.Image:
+                        break;
+                    case BaseChain.ChainType.Flash:
+                        break;
+                    case BaseChain.ChainType.Record:
+                        break;
+                    case BaseChain.ChainType.Video:
+                        break;
+                    case BaseChain.ChainType.QFace:
+                        break;
+                    case BaseChain.ChainType.BFace:
+                        break;
+                    case BaseChain.ChainType.Xml:
+                        break;
+                    case BaseChain.ChainType.MultiMsg:
+                        break;
+                    case BaseChain.ChainType.Json:
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return sb.ToString();
         }
 
 
